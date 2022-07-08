@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">摄像头监控</string>
     <string name="main">主页</string>
+    <string name="start_link">开始连接</string>
 </resources>

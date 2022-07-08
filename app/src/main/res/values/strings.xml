@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Camera</string>
     <string name="main">Main</string>
+    <string name="start_link">Start Connect</string>
 </resources>

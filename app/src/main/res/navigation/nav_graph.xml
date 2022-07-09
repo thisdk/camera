@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="io.github.thisdk.camera.MainFragment"
+        android:name="io.github.thisdk.camera.ui.MainFragment"
         android:label="@string/main"
         tools:layout="@layout/fragment_main"/>
 

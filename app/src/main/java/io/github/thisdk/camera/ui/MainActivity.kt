@@ -1,7 +1,6 @@
-package io.github.thisdk.camera
+package io.github.thisdk.camera.ui
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
@@ -12,12 +11,18 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import dagger.hilt.android.AndroidEntryPoint
+import io.github.thisdk.camera.R
 import io.github.thisdk.camera.databinding.ActivityMainBinding
+import io.github.thisdk.camera.service.FRpcLibService
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    private val serviceIntent: Intent by lazy { Intent(this, FRpcLibService::class.java) }
 
     private val conn = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
@@ -37,10 +42,15 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        val intent = Intent(this, FrpcService::class.java)
-        startService(intent)
-        bindService(intent, conn, Context.BIND_AUTO_CREATE)
+        startFRpcLibService()
+    }
 
+    fun startFRpcLibService() {
+        startService(serviceIntent)
+    }
+
+    fun stopFRpcLibService() {
+        stopService(serviceIntent)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -51,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unbindService(conn)
+        stopFRpcLibService()
     }
 
 }

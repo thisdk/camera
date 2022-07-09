@@ -27,6 +27,8 @@ class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    private var first = true
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -89,6 +91,15 @@ class MainFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!first) {
+            binding.start.text = "正在重新获取流..."
+            binding.start.callOnClick()
+        }
+        first = false
     }
 
     override fun onPause() {

@@ -41,7 +41,7 @@ object RetrofitModule {
 
 @Module
 @InstallIn(ViewModelComponent::class)
-object ThreadServiceModule {
+object MJpgStreamServiceModule {
     @Provides
     fun provideMJpgStreamService(retrofit: Retrofit): MJpgStreamService {
         return retrofit.create(MJpgStreamService::class.java)

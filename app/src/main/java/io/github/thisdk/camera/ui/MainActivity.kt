@@ -1,6 +1,7 @@
 package io.github.thisdk.camera.ui
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
@@ -47,9 +48,11 @@ class MainActivity : AppCompatActivity() {
 
     fun startFRpcLibService() {
         startService(serviceIntent)
+        bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE)
     }
 
     fun stopFRpcLibService() {
+        unbindService(conn)
         stopService(serviceIntent)
     }
 
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopFRpcLibService()
+        unbindService(conn)
     }
 
 }

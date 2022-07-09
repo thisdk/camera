@@ -9,6 +9,7 @@ import io.github.thisdk.camera.data.MJpgStreamService
 import io.github.thisdk.camera.ktx.asLiveData
 import io.github.thisdk.camera.ktx.setState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -37,9 +38,6 @@ class MainViewModel @Inject constructor(
 
     private fun fetchStream() {
         viewModelScope.launch {
-            _viewStates.setState {
-                copy(enable = false)
-            }
             flow<InputStream?> {
                 showLog("信息 : 开始请求视频流...")
                 emit(service.stream().byteStream())
@@ -55,6 +53,7 @@ class MainViewModel @Inject constructor(
                     }
                     showLog("错误 : 异常 ${cause.message}")
                     showLog("信息 : 即将开始第 ${attempt + 1} 次重试")
+                    delay(1000)
                     cause is Exception || cause is java.lang.Exception
                 }
                 .catch { e ->

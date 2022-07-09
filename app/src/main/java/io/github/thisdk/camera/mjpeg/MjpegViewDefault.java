@@ -47,6 +47,8 @@ public class MjpegViewDefault extends AbstractMjpegView {
     private boolean resume = false;
 
     private OnPlayerStreamStateCallback playerStreamStateCallback;
+    private long streamErrorMis = 0L;
+    private int streamErrorVal = 0;
 
     private OnFrameCapturedListener onFrameCapturedListener;
 
@@ -449,9 +451,18 @@ public class MjpegViewDefault extends AbstractMjpegView {
                                 }
                             } catch (IOException e) {
                                 Log.e(TAG, "encountered exception during render", e);
-                                mRun = false;
-                                if (playerStreamStateCallback != null) {
-                                    playerStreamStateCallback.streamError();
+                                if (System.currentTimeMillis() - streamErrorMis < 1000) {
+                                    streamErrorVal++;
+                                    if (streamErrorVal > 20) {
+                                        mRun = false;
+                                        if (playerStreamStateCallback != null) {
+                                            playerStreamStateCallback.streamError();
+                                        }
+                                        streamErrorVal = 0;
+                                    }
+                                } else {
+                                    streamErrorMis = System.currentTimeMillis();
+                                    streamErrorVal = 0;
                                 }
                             }
                         }

@@ -38,6 +38,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.start.setOnClickListener {
+            binding.start.isEnabled = false
             viewModel.dispatch(MainViewAES.MainViewAction.FetchStream)
         }
         binding.video.setDisplayMode(DisplayMode.BEST_FIT)
@@ -78,11 +79,11 @@ class MainFragment : Fragment() {
                         (activity as MainActivity).stopFRpcLibService()
                         (activity as MainActivity).startFRpcLibService()
                         lifecycleScope.launch {
-                            binding.start.isEnabled = false
                             binding.start.text = "正在重启FRpc服务..."
+                            binding.start.isEnabled = false
                             delay(8000)
-                            binding.start.text = "尝试重新连接"
                             binding.start.isEnabled = true
+                            binding.start.text = "尝试重新连接"
                         }
                     }
                 }

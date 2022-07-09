@@ -2,6 +2,7 @@ package io.github.thisdk.camera.service
 
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
 import frpclib.Frpclib
@@ -12,11 +13,8 @@ import java.io.File
 @AndroidEntryPoint
 class FRpcLibService : Service() {
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onCreate() {
+        super.onCreate()
         val config = File(cacheDir, "frpc.ini")
         if (config.exists() && config.canRead()) {
             startFRpcLibService(config)
@@ -26,15 +24,22 @@ class FRpcLibService : Service() {
                 startFRpcLibService(config)
             }
         }
-        return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun onBind(intent: Intent?): IBinder {
+        return Binder()
     }
 
     private fun startFRpcLibService(config: File) {
-        try {
-            Frpclib.run(config.absolutePath)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Thread {
+            kotlin.run {
+                try {
+                    Frpclib.run(config.absolutePath)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }.start()
     }
 
 

@@ -40,7 +40,6 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.start.setOnClickListener {
-            binding.start.isEnabled = false
             viewModel.dispatch(MainViewAES.MainViewAction.FetchStream)
         }
         binding.video.setDisplayMode(DisplayMode.BEST_FIT)
@@ -48,8 +47,8 @@ class MainFragment : Fragment() {
         binding.video.setPlayerStreamStateCallback(object : OnPlayerStreamStateCallback {
             override fun streamError() {
                 lifecycleScope.launch(Dispatchers.Main) {
+                    viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(true))
                     binding.video.clearStream()
-                    binding.start.isEnabled = true
                     binding.start.text = "视频流异常,点击重试!"
                 }
             }
@@ -59,17 +58,16 @@ class MainFragment : Fragment() {
 
     private fun initViewModel() {
         viewModel.viewStates.let { state ->
-            state.observeState(viewLifecycleOwner, MainViewAES.MainViewState::stream) {
-                if (it == null) return@observeState
-                binding.video.setSource(MjpegInputStreamDefault(it))
-                binding.start.text = "内网穿透成功"
-                binding.start.isEnabled = false
+            state.observeState(viewLifecycleOwner, MainViewAES.MainViewState::enable) {
+                binding.start.isEnabled = it
             }
             state.observeState(viewLifecycleOwner, MainViewAES.MainViewState::log) {
                 binding.log.text = it
             }
-            state.observeState(viewLifecycleOwner, MainViewAES.MainViewState::enable) {
-                binding.start.isEnabled = it
+            state.observeState(viewLifecycleOwner, MainViewAES.MainViewState::stream) {
+                if (it == null) return@observeState
+                binding.video.setSource(MjpegInputStreamDefault(it))
+                binding.start.text = "内网穿透成功"
             }
         }
         viewModel.viewEvents.observeEvent(viewLifecycleOwner) {
@@ -82,9 +80,9 @@ class MainFragment : Fragment() {
                         (activity as MainActivity).startFRpcLibService()
                         lifecycleScope.launch {
                             binding.start.text = "正在重启FRpc服务..."
-                            binding.start.isEnabled = false
+                            viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(false))
                             delay(8000)
-                            binding.start.isEnabled = true
+                            viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(true))
                             binding.start.text = "尝试重新连接"
                         }
                     }

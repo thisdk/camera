@@ -48,6 +48,7 @@ class MainFragment : Fragment() {
             override fun streamError() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(true))
+                    viewModel.dispatch(MainViewAES.MainViewAction.ShowLog("错误 : 视频流异常..."))
                     binding.video.clearStream()
                     binding.start.text = "视频流异常,点击重试!"
                 }
@@ -80,9 +81,11 @@ class MainFragment : Fragment() {
                         (activity as MainActivity).startFRpcLibService()
                         lifecycleScope.launch {
                             binding.start.text = "正在重启FRpc服务..."
+                            viewModel.dispatch(MainViewAES.MainViewAction.ShowLog("信息 : 正在重启FRpc服务..."))
                             viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(false))
                             delay(8000)
                             viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(true))
+                            viewModel.dispatch(MainViewAES.MainViewAction.ShowLog("信息 : 请尝试重新连接"))
                             binding.start.text = "尝试重新连接"
                         }
                     }

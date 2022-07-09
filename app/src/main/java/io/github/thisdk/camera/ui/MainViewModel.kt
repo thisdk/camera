@@ -32,18 +32,13 @@ class MainViewModel @Inject constructor(
         when (action) {
             is MainViewAES.MainViewAction.FetchStream -> fetchStream()
             is MainViewAES.MainViewAction.ButtonEnable -> setButtonEnable(action.enable)
-        }
-    }
-
-    private fun setButtonEnable(enable: Boolean) {
-        _viewStates.setState {
-            copy(enable = enable)
+            is MainViewAES.MainViewAction.ShowLog -> showLog(action.log)
         }
     }
 
     private fun fetchStream() {
         if (streamDeferred != null && streamDeferred?.isActive!!) {
-            showLog("信息 : 取消已有协程")
+            showLog("信息 : 取消已有协程任务")
             streamDeferred?.cancel()
         }
         streamDeferred = viewModelScope.async {
@@ -51,9 +46,9 @@ class MainViewModel @Inject constructor(
             flow {
                 emit(service.stream().byteStream())
             }.onStart {
-                showLog("信息 : 开始请求视频流...")
+                showLog("信息 : 开始穿透内网,请求视频流...")
             }.retryWhen { cause, attempt ->
-                if (attempt > 10) {
+                if (attempt > 9) {
                     showLog("错误 : 重试超过10次,请检查网络,或者再次重试!")
                     return@retryWhen false
                 }
@@ -67,7 +62,7 @@ class MainViewModel @Inject constructor(
                 cause is Exception || cause is java.lang.Exception
             }.catch { e ->
                 if (e is ConnectException) {
-                    showLog("信息 : FRpc服务异常,即将重启!")
+                    showLog("错误 : FRpc服务异常,即将重启!")
                     _viewEvents.setEvent(
                         MainViewAES.MainViewEvent.FRpcLibConnError
                     )
@@ -75,11 +70,17 @@ class MainViewModel @Inject constructor(
                 }
                 setButtonEnable(true)
             }.onEach {
-                showLog("信息 : 内网穿透成功!")
+                showLog("信息 : 内网穿透成功,读取视频流...")
                 _viewStates.setState {
                     copy(stream = it)
                 }
             }.collect()
+        }
+    }
+
+    private fun setButtonEnable(enable: Boolean) {
+        _viewStates.setState {
+            copy(enable = enable)
         }
     }
 

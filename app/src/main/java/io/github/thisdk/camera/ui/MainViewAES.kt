@@ -8,6 +8,7 @@ class MainViewAES {
     sealed class MainViewAction {
         object FetchStream : MainViewAction()
         data class ButtonEnable(val enable: Boolean) : MainViewAction()
+        data class ShowLog(val log: String) : MainViewAction()
     }
 
     sealed class MainViewEvent {

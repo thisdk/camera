@@ -12,8 +12,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        runBlocking(Dispatchers.IO) {
-            val file = File(cacheDir, "temp_frpc.ini")
+        runBlocking(Dispatchers.Default) {
+            val file = File(cacheDir, "frpc.ini")
             if (!file.exists()) {
                 assets.open("frpc.ini").bufferedReader().use {
                     file.writeText(it.readText())

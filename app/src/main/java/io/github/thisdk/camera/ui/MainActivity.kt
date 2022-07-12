@@ -25,9 +25,11 @@ class MainActivity : AppCompatActivity() {
 
     private val serviceIntent: Intent by lazy { Intent(this, FRpcLibService::class.java) }
 
-    private val conn = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
-        override fun onServiceDisconnected(name: ComponentName?) {}
+    private val conn: ServiceConnection by lazy {
+        object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
+            override fun onServiceDisconnected(name: ComponentName?) {}
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         startFRpcLibService()
+
     }
 
     fun startFRpcLibService() {

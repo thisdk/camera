@@ -9,6 +9,7 @@ import frpclib.Frpclib
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class FRpcLibService : Service() {
@@ -31,15 +32,13 @@ class FRpcLibService : Service() {
     }
 
     private fun startFRpcLibService(config: File) {
-        Thread {
-            kotlin.run {
-                try {
-                    Frpclib.run(config.absolutePath)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+        thread {
+            try {
+                Frpclib.run(config.absolutePath)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        }.start()
+        }
     }
 
 

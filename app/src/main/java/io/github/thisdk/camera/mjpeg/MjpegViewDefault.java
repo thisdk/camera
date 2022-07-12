@@ -116,7 +116,6 @@ public class MjpegViewDefault extends AbstractMjpegView {
         boolean retry = true;
         while (retry) {
             try {
-
                 if (thread != null) {
                     thread.join(500);
                 }
@@ -325,6 +324,7 @@ public class MjpegViewDefault extends AbstractMjpegView {
     }
 
     class MjpegViewThread extends Thread {
+
         private final SurfaceHolder mSurfaceHolder;
         private int frameCounter = 0;
         private Bitmap ovl;
@@ -335,36 +335,36 @@ public class MjpegViewDefault extends AbstractMjpegView {
 
         private Rect destRect(int bmw, int bmh) {
 
-            int tempx;
-            int tempy;
+            int temp_x;
+            int temp_y;
 
             if (displayMode == MjpegViewDefault.SIZE_STANDARD) {
-                tempx = (displayWidth / 2) - (bmw / 2);
-                tempy = (displayHeight / 2) - (bmh / 2);
-                return new Rect(tempx, tempy, bmw + tempx, bmh + tempy);
+                temp_x = (displayWidth / 2) - (bmw / 2);
+                temp_y = (displayHeight / 2) - (bmh / 2);
+                return new Rect(temp_x, temp_y, bmw + temp_x, bmh + temp_y);
             }
             if (displayMode == MjpegViewDefault.SIZE_BEST_FIT) {
-                float bmasp = (float) bmw / (float) bmh;
+                float bitmap_sp = (float) bmw / (float) bmh;
                 bmw = displayWidth;
-                bmh = (int) (displayWidth / bmasp);
+                bmh = (int) (displayWidth / bitmap_sp);
                 if (bmh > displayHeight) {
                     bmh = displayHeight;
-                    bmw = (int) (displayHeight * bmasp);
+                    bmw = (int) (displayHeight * bitmap_sp);
                 }
-                tempx = (displayWidth / 2) - (bmw / 2);
-                tempy = (displayHeight / 2) - (bmh / 2);
-                return new Rect(tempx, tempy, bmw + tempx, bmh + tempy);
+                temp_x = (displayWidth / 2) - (bmw / 2);
+                temp_y = (displayHeight / 2) - (bmh / 2);
+                return new Rect(temp_x, temp_y, bmw + temp_x, bmh + temp_y);
             }
             if (displayMode == MjpegViewDefault.SIZE_SCALE_FIT) {
                 float bm_asp = ((float) bmw / (float) bmh);
-                tempx = 0;
-                tempy = 0;
+                temp_x = 0;
+                temp_y = 0;
                 if (bmw < displayWidth) {
                     bmw = displayWidth;
                     bmh = (int) (displayWidth / bm_asp);
-                    tempy = (displayHeight - bmh) / 4;
+                    temp_y = (displayHeight - bmh) / 4;
                 }
-                return new Rect(tempx, tempy, bmw, bmh + tempy);
+                return new Rect(temp_x, temp_y, bmw, bmh + temp_y);
             }
             if (displayMode == MjpegViewDefault.SIZE_FULLSCREEN)
                 return new Rect(0, 0, displayWidth, displayHeight);
@@ -394,20 +394,19 @@ public class MjpegViewDefault extends AbstractMjpegView {
 
         public void run() {
             long start = System.currentTimeMillis();
-            PorterDuffXfermode mode = new PorterDuffXfermode(
-                    PorterDuff.Mode.DST_OVER);
-            Bitmap bm;
+            PorterDuffXfermode mode = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
+            Bitmap bitmap;
             int width;
             int height;
             Rect destRect;
-            Canvas c = null;
-            Paint p = new Paint();
+            Canvas canvas = null;
+            Paint paint = new Paint();
             String fps;
             while (mRun) {
                 if (surfaceDone) {
                     try {
-                        c = mSurfaceHolder.lockCanvas();
-                        if (c == null) {
+                        canvas = mSurfaceHolder.lockCanvas();
+                        if (canvas == null) {
                             Log.w(TAG, "null canvas, skipping render");
                             continue;
                         }
@@ -415,30 +414,28 @@ public class MjpegViewDefault extends AbstractMjpegView {
                             try {
                                 byte[] header = mIn.readHeader();
                                 byte[] imageData = mIn.readMjpegFrame(header);
-                                bm = BitmapFactory.decodeStream(new ByteArrayInputStream(imageData));
+                                bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(imageData));
                                 if (flipHorizontal || flipVertical)
-                                    bm = flip(bm);
+                                    bitmap = flip(bitmap);
                                 if (rotateDegrees != 0)
-                                    bm = rotate(bm, rotateDegrees);
+                                    bitmap = rotate(bitmap, rotateDegrees);
                                 _frameCapturedWithByteData(imageData, header);
-                                _frameCapturedWithBitmap(bm);
-                                destRect = destRect(bm.getWidth(), bm.getHeight());
+                                _frameCapturedWithBitmap(bitmap);
+                                destRect = destRect(bitmap.getWidth(), bitmap.getHeight());
                                 if (transparentBackground) {
-                                    c.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                                 } else {
-                                    c.drawColor(backgroundColor);
+                                    canvas.drawColor(backgroundColor);
                                 }
-
-                                c.drawBitmap(bm, null, destRect, p);
-
+                                canvas.drawBitmap(bitmap, null, destRect, paint);
                                 if (showFps && destRect != null) {
-                                    p.setXfermode(mode);
+                                    paint.setXfermode(mode);
                                     if (ovl != null) {
                                         height = ((ovlPos & 1) == 1) ? destRect.top : destRect.bottom - ovl.getHeight();
                                         width = ((ovlPos & 8) == 8) ? destRect.left : destRect.right - ovl.getWidth();
-                                        c.drawBitmap(ovl, width, height, null);
+                                        canvas.drawBitmap(ovl, width, height, null);
                                     }
-                                    p.setXfermode(null);
+                                    paint.setXfermode(null);
                                     frameCounter++;
                                     if ((System.currentTimeMillis() - start) >= 1000) {
                                         fps = frameCounter + "fps";
@@ -465,8 +462,8 @@ public class MjpegViewDefault extends AbstractMjpegView {
                             }
                         }
                     } finally {
-                        if (c != null) {
-                            mSurfaceHolder.unlockCanvasAndPost(c);
+                        if (canvas != null) {
+                            mSurfaceHolder.unlockCanvasAndPost(canvas);
                         } else {
                             Log.w(TAG, "couldn't unlock surface canvas");
                         }

@@ -12,7 +12,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        runBlocking(Dispatchers.Default) {
+        runBlocking(Dispatchers.IO) {
             val file = File(cacheDir, "frpc.ini")
             if (!file.exists()) {
                 assets.open("frpc.ini").bufferedReader().use {

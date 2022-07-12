@@ -67,6 +67,7 @@ class MainFragment : Fragment() {
             }
             state.observeState(viewLifecycleOwner, MainViewAES.MainViewState::stream) {
                 if (it == null) return@observeState
+                viewModel.dispatch(MainViewAES.MainViewAction.ButtonEnable(false))
                 binding.video.setSource(MjpegInputStreamDefault(it))
                 binding.start.text = "内网穿透成功"
             }

@@ -58,7 +58,7 @@ class MainViewModel @Inject constructor(
                 }
                 showLog("错误 : 异常 ${cause.message}")
                 showLog("信息 : 即将开始第 ${attempt + 1} 次重试")
-                delay(1000)
+                delay(500)
                 cause is Exception || cause is java.lang.Exception
             }.catch { e ->
                 if (e is ConnectException) {

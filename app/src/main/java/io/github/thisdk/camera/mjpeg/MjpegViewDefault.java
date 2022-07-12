@@ -97,8 +97,6 @@ public class MjpegViewDefault extends AbstractMjpegView {
         }
     }
 
-    /* all methods/constructors below are no more accessible */
-
     void _startPlayback() {
         if (mIn != null && thread != null) {
             mRun = true;

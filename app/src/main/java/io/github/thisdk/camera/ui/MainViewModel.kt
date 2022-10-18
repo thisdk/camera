@@ -59,7 +59,7 @@ class MainViewModel @Inject constructor(
                 showLog("错误 : 异常 ${cause.message}")
                 showLog("信息 : 即将开始第 ${attempt + 1} 次重试")
                 delay(500)
-                cause is Exception || cause is java.lang.Exception
+                cause is Exception
             }.catch { e ->
                 if (e is ConnectException) {
                     showLog("错误 : FRpc服务异常,即将重启!")
